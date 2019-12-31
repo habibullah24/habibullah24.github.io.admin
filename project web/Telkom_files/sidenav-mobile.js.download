@@ -1,0 +1,70 @@
+$(document).ready(function() {
+	//alert("Masuk");
+	var list = $("#menu-list-desktop li");
+	var listsize = list.size();
+	var active="";
+	var item="";
+	var itemid ="";
+	var itemname ="";
+	var itemURL ="";
+	var itemFirst ="";
+
+	if($('#menu-list-desktop li').length != '0'){		
+		for(var i=0; i<listsize; i++)
+	   {
+			active="";
+			itemFirst = list[0];
+			item = list[i];
+			itemid = item.getAttribute("id");
+			itemname = item.getAttribute("data-menu");
+			itemURL = item.getAttribute("data-link-target");
+			if($("#"+itemid).hasClass("active"))
+			{
+				active="active";		   			
+			}
+			else
+			{
+				active="";
+			}
+			$("#sidenav-mobile-list").append('<li class="'+active+'" id="'+itemid+'M"><a data-item-mobile="'+itemname+'" href="'+itemURL+'">'+itemname+'</a></li>');
+			
+			if($("#"+itemid).hasClass("active")){
+				$("#sidenav-mobile button").text(itemname+"   ");
+			}
+
+	   }
+
+	   if(!$('#menu-list-desktop li').hasClass("active"))
+		{
+			$('#sidenav-mobile-list li:first-child').addClass("active");
+			itemname=itemFirst.getAttribute("data-menu");
+			$("#sidenav-mobile button").text(itemname+"   ");
+			//alert("if 2");
+		}
+
+		$("#sidenav-mobile-list li a").click(function(){
+			   $("#sidenav-mobile-list li").removeClass("active");
+			   $(this).addClass("active");
+			   var id=this.getAttribute("data-item-mobile");
+			   /*alert("ID : "+itemid+" - "+this.getAttribute("data-item-mobile"));
+			   $(".tab-pane").removeClass("active");*/
+			   $("#"+id).addClass("active");
+			   console.log("id : "+this.getAttribute("data-item-mobile"));
+			var name=this.getAttribute("data-item-mobile");
+			$("#selectedMenu").html($(this));
+		 });
+		 
+		   
+		/*   $("#tab-title-contact ul li a").click(function(){
+			var name=this.getAttribute("data-item-mobile");
+			$("li.selectedMenu").text(name);
+			   /*var id=this.getAttribute("data-item-mobile");
+			   $(".tab-pane").removeClass("active");
+			   $("#"+id).addClass("active");
+			   var name=this.getAttribute("data-item-mobile");
+			   $("#contact-menu-dropdown button").text(name+"  ");		
+				///$("#overview-mobile button").append('<span class="caret"></span>');
+		 });
+		*/
+	}
+});

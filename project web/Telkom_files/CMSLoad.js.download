@@ -1,0 +1,23 @@
+
+var textCMSLoad = {};
+
+// The object that the JSON string should represent, can use this as it is if you want.
+textCMSLoad.category = [
+	{
+		CMSEvtCond: '$(\'#businesstype\').val() ==\'ENT\'',
+		CMSEvt: 'ENT',
+		CMSArg: ''
+	},
+	{
+		CMSEvtCond: '$(\'#businesstype\').val() ==\'SME\'',
+		CMSEvt: 'SME',
+		CMSArg: ''
+	},
+	{
+		CMSEvtCond: '$(\'#businesstype\').val() ==\'WholeSale\'',
+		CMSEvt: 'WholeSale',
+		CMSArg: ''
+	}];
+	
+// JSON string of the above object, just as an example
+textCMSLoad.categoryJSON = JSON.stringify(textCMSLoad.category);

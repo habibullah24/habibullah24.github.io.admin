@@ -1,0 +1,241 @@
+var documenturl = document.URL;
+var redirecturl = "";
+if(documenturl.indexOf("login.telkom.co.id")>-1)
+	redirecturl = $("#homeUrl").val();
+else
+	redirecturl = document.URL;
+
+var billWindow =null;
+//console.log("@@@redirecturl: "+redirecturl);
+var urllocation = document.URL;
+var urlsplit = urllocation.split("/");
+var type = "";
+if(urlsplit[5]=="business")
+type="business";
+
+function SubmitRNSearchSide() {
+	var url = "";
+    url = (currcookielocale=="en_US"?$("#searchsupportlink").val():$("#searchsupportlinkID").val()) + $('#search-side').val() + "/c/18/search/1";
+    window.open(url, '_blank');
+}
+function getParameterByName2(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(decodeURIComponent(location.search));
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+function checkChatAvail(){
+	return $("#chatContainer").hasClass("rn_ChatAvailable");
+}
+function CallChat(){
+	if(getCookie("oam_ck_uid_domain")!=null){ //logged in
+		if($('#chatLink a').length>0){
+			if($("#chatContainer").hasClass("rn_ChatAvailable")!=false){
+				$('#chatLink a')[0].onclick();	
+			}else{ window.open($("#locationUrl").val()+"/servlet/tk/"+currcookielocale+"/errorpage/livechatunavailable"+(currcookielocale=="id_ID"?"_id":"")+".html",'_blank','width=300,height=530,resizable=1');}
+		}else{
+			window.open($("#locationUrl").val()+"/servlet/tk/"+currcookielocale+"/errorpage/livechatunavailable"+(currcookielocale=="id_ID"?"_id":"")+".html",'_blank','width=300,height=530,resizable=1');
+		}
+	}
+	else{
+		window.location =$("#locationUrl").val()+"/servlet/Satellite?pagename=ChatLoginRedirect&url_param="+encodeURIComponent(redirecturl)+"&type="+type;
+	}
+	var eve = new ClickEvent("CHAT", "");
+	eve.sendEvent();
+	
+}
+function redirectLogin(){
+	if(getCookie("oam_ck_uid_domain")!=null){ //logged in
+		
+	}
+	else{
+		window.location = $("#locationUrl").val()+"/servlet/Satellite?pagename=ChatLoginRedirect&url_param="+encodeURIComponent(redirecturl)+"&type="+type;
+	}
+}
+function openBilling(sidebarUrl){
+	if(billWindow && ! billWindow.closed) billWindow.focus()
+	else  billWindow = window.open($("#locationUrl").val()+sidebarUrl,'Billing','width=575,height=630, menubar=no,resizable=no,directories=no,location=no');
+
+}
+function redirectTo(sidebarUrl,isNewtab){
+	var res = sidebarUrl.split("/");
+	if(res[0].indexOf("servlet")>-1) //contain servlet
+    {  
+		window.location = $("#locationUrl").val()+sidebarUrl;
+
+	}	
+	else
+	{
+		if(isNewtab)window.open(sidebarUrl,"_blank");
+		else window.location = sidebarUrl;
+	}
+
+}
+
+
+$(window).load(function() {
+	$("#search-side").keyup(function(event){
+	    if(event.keyCode == 13){
+	    	SubmitRNSearchSide();
+	    }
+	});
+	var i =0;
+	var flag = 0;
+	//console.log("###cek ini");
+	for (i = 1; i <= 5; ++i) {
+		setTimeout(function(){
+			//console.log("cek avail: "+checkChatAvail());
+			//console.log("cek0: "+ i);
+			if(getParameterByName("chat_flag")==1){
+				if(checkChatAvail()&&flag==0){
+			 	 CallChat();
+			 	 flag = 1;
+			 	 //console.log("cek1: "+ i);
+			 	 i = 10;
+				}
+				if(i>=5 && i < 10){ //in case someone put the parameter directly to the url (&chat_flag-1)
+					//console.log("cek2: "+ i);
+					i = 10;
+					 flag = 0;
+					window.open($("#locationUrl").val()+"/servlet/tk/"+currcookielocale+"/errorpage/livechatunavailable"+(currcookielocale=="id_ID"?"_id":"")+".html",'_blank','width=300,height=530,resizable=1');
+				}
+			}
+			if(checkChatAvail()==false && i>=5 && i <10){
+				//console.log("cek3"+ i);
+				i=10;
+		
+				//console.log("##unwrap"+ i);
+				var hasElement = document.getElementById("redirectFback");
+				if(hasElement!=undefined){
+					 $("#chatContainerFback").unwrap();
+					 //console.log("##has el "+ hasElement);
+				}
+				hasElement = document.getElementById("redirect");
+				if(hasElement!=undefined){
+					 $("#chatContainer").unwrap();
+					 //console.log("##has el "+ hasElement);
+				}
+			}
+		}, 2500);
+	}
+	
+if(getCookie("oam_ck_uid_domain")!=null){  //logged in
+	$("#chat-statement").css("display","none");
+
+	RightNow.Client.Controller.addComponent(
+       {
+       		chat_login_page: $("#rightnowchat").val(),
+			container_element_id: "chatContainer",
+			info_element_id: "chatLinkInfo",
+			chat_login_page_width: 300,
+			chat_login_page_height: 530,
+			instance_id: "sccl_0",
+			module: "ConditionalChatLink",
+			link_element_id: "chatLink",
+			enable_availability_check: true,
+           	label_available_with_wait_template: (currcookielocale=="en_US"?"We are busy":"Kami offline"),
+			label_unavailable_hours: (currcookielocale=="en_US"?"We are busy":"Kami offline"),
+			label_available_immediately_template: (currcookielocale=="en_US"?"We are online":"Kami online"),
+			label_unavailable_busy_template: (currcookielocale=="en_US"?"We are busy":"Kami offline"),
+			label_default: (currcookielocale=="en_US"?"We are online":"Kami online"),
+           	type: 7
+       },
+       (currcookielocale=="en_US"?$("#rightnowchatlink").val():$("#rightnowchatlinkID").val())+"ci/ws/get"
+   );
+
+	$("#chatContainer").unwrap();
+}
+else{
+	$("#chat-statement").css("display","block");
+	RightNow.Client.Controller.addComponent(
+      {
+			chat_login_page: $("#rightnowchat").val(),
+			container_element_id: "chatContainer",
+			info_element_id: "chatLinkInfo",
+			chat_login_page_width: 300,
+			chat_login_page_height: 530,
+			instance_id: "sccl_0",
+			module: "ConditionalChatLink",
+			link_element_id: "chatUnloggedin",
+			enable_availability_check: true,
+			label_available_with_wait_template: (currcookielocale=="en_US"?"We are busy":"Kami offline"),
+			label_unavailable_hours: (currcookielocale=="en_US"?"We are busy":"Kami offline"),
+			label_available_immediately_template: (currcookielocale=="en_US"?"We are online":"Kami online"),
+			label_unavailable_busy_template: (currcookielocale=="en_US"?"We are busy":"Kami offline"),
+			label_default: (currcookielocale=="en_US"?"We are online":"Kami online"),
+          	type: 7
+      },
+      (currcookielocale=="en_US"?$("#rightnowchatlink").val():$("#rightnowchatlinkID").val())+"ci/ws/get"
+  );
+}
+	
+	
+});
+
+function handleMChat(){
+
+	if($('#chatLinkInfo').hasClass("rn_ChatAvailable"))
+	{
+		console.debug("Chat Available");
+		$("#CMSMChatLink").removeAttr("style");
+		$("#CMSMChatLink").attr("href","#");
+		$("#CMSMChatLink").click(CallChat);
+				
+	}else{
+		console.debug("Chat Not Available");
+		$("#CMSMChatLink").attr("style", "color:red !important;");
+		$("#CMSMChatLink").removeAttr("href");
+		$("#CMSMChatLink").unbind("click");
+
+
+	}
+}
+
+$( document ).ready(function() {
+
+if(window.location.search.substring(1).indexOf("app=native") >-1)
+{
+   $.cookie("CMSApp","Y", {'path': '/', 'domain': 'telkom.co.id'});
+}
+
+var isApp = $.cookie("CMSApp");
+
+
+var imgrooturl="";
+
+$("#sticky-right ul > li").each(function() { 
+if($(this).find("a").attr('onclick')){
+
+if(!($(this).has(".login").length  &&  isApp =="Y") )
+{
+$('#mobile-sidebar').append('<li><a href="#" onclick="'+$(this).find("a").attr('onclick')+'"><img class="icon-nav" src="'+$(this).find("img").attr('src')+'"/>'+$(this).find("span").text()+'</a></li>');
+        
+}
+       imgrooturl = $(this).find("img").attr('src').split("/servlet/")[0];
+
+
+}else
+{
+if(isApp !="Y" )
+{
+$('#mobile-sidebar').append('<li><a id="CMSMChatLink"><img class="icon-nav" src="'+$(this).find("img").attr('src')+'"/>'+$(this).find(".box-chat").find("span").text()+'</a></li>');
+}
+
+}
+});
+
+ var langchangescript = $("div .language").find("li").attr("onclick");
+ if(langchangescript.indexOf("id_ID") != -1 )
+ {
+     $('#mobile-sidebar').append('<li><a id="CMSMLang" onclick="' + langchangescript +'"><img class="icon-nav" src="' + imgrooturl + '/servlet/Telkom/img/icon-ina.png"/>BAHASA INDONESIA</a></li>');
+ }else
+ {
+     $('#mobile-sidebar').append('<li><a id="CMSMLang" onclick="' + langchangescript +'"><img class="icon-nav" src="' + imgrooturl + '/servlet/Telkom/img/icon-eng.png"/>ENGLISH</a></li>');
+
+ }
+
+
+
+ $("#box-user" ).click(handleMChat);
+
+});

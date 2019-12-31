@@ -1,0 +1,173 @@
+$(document).ready(function() {   
+    
+    /* Magazine homepage */
+    //for highlight
+    $("#list-magazine").carouFredSel({
+        circular: true,
+        infinite: false,
+        auto: false,
+        items: {
+            width: '100%',
+            height: 'variable',
+            visible: {
+                min: 1,
+                max: 999
+            }
+        },
+        responsive: false,
+        prev: {
+            button: "#mag_prev",
+            key: "left"
+        },
+        next: {
+            button: "#mag_next",
+            key: "right"
+        },
+        
+        width: '100%',  
+        swipe: {
+            onMouse: false,
+            onTouch: false
+        },          
+        pagination  : "#mag_pag"                        
+    });
+    //for magazine
+    $("#list-magazine-home").carouFredSel({
+        circular: true,
+        infinite: false,
+        auto: false,
+        items: {
+            width: '100%',
+            height: 'variable',
+            visible: {
+                min: 1,
+                max: 999
+            }
+        },
+        responsive: false,
+        prev: {
+            button: "#mag_prev_home",
+            key: "left"
+        },
+        next: {
+            button: "#mag_next_home",
+            key: "right"
+        },
+        
+        width: '100%',  
+        swipe: {
+            onMouse: false,
+            onTouch: false
+        },          
+        pagination  : "#mag_pag_home"                        
+    });
+    
+    /* end magazine */
+
+    /* action on support details page */
+    $('#click-no').click(function() {
+        $('#box-helpusbetter').modal('show');
+    }); 
+    /* End */
+    
+    /* all textbox placeholder */
+    $('input[type=text], textarea').placeholder();
+    /* end */
+
+    /* Accordion site search page */
+    $('.panel-collapse').on('show.bs.collapse',function(){
+        $(this).prev('.panel-heading').addClass("active-panel");
+    });
+    
+    $('.panel-collapse').on('hide.bs.collapse',function(){
+        $(this).prev('.panel-heading').removeClass("active-panel");
+    });     
+    /* End Accordion */
+
+    /* Load comment list article page */
+    $(".item-comment").slice(0, 2).show(); 
+    $("#load-comment").click(function(e){
+        e.preventDefault();
+        $(".item-comment:hidden").slice(0, 2).show();
+    });
+    /* End comment */     
+
+    /* Highlight List */
+    $('.show-all').hide();
+    $('.list-highlight:gt(3)').hide();
+    $('.show-item').click(function() {
+        $('.list-highlight:gt(3)').slideDown( "slow", function() {
+            $(this).show();
+             $('.show-all').show();
+        });
+        $(this).hide();
+        $('.show-all').show();
+    }); 
+    // End highlight
+    
+    /* Cross browser css3 for IE */
+    $(".image-container").css({backgroundSize: "cover"});
+    if (window.PIE) {
+        $('.circle, .btn, .box-icon, #magazine > ul > li,#magazine-generic > ul > li, .box-title > h3, .block-images > .ribbon > span, input, .dropdown-menu, .shrink').each(function() {
+            PIE.attach(this);
+        });
+    }  
+    //End
+
+    
+    if(!$("ul.nav-tabs li").hasClass('active'))
+        $("ul.nav-tabs li:first-child").addClass('active');    
+
+    /* Load details - service detail */
+    $('.item-paket').each(function() {
+        $('#'+ this.id +' .box-ket p').slice(0,1).show(); 
+    });
+    
+    
+    /*change .read-more into .read-more-popup*/
+    $(".read-more-popup").click(function(e){
+        e.preventDefault();
+        var show_id = $(this).attr("id").substr(10);
+        $('#ctn-service-paket #paket-'+ show_id +' .box-ket p:hidden').slice(0, 1).slideDown('slow').show();
+    });
+    /* End details */ 
+    
+
+    /* installation address checked */
+    var countChecked = function() {
+    var n = $( "input:checked" ).length;
+      if(n === 1){
+        $( "#hide-if-checked" ).fadeOut();
+      }else{
+        $( "#hide-if-checked" ).fadeIn();
+      }
+    };
+    //countChecked();
+    $( "#instal-address input[type=checkbox]" ).on( "click", countChecked);
+
+    $('img').each(function() {
+        var img  = new Image(),
+            self = this;
+        
+        img.onerror = function(){
+            $(self).prop('src', 'img/img-replace.jpg');
+        }
+        
+        img.src = this.src;
+        
+    });  
+
+        
+   /* Load details - service detail */
+    $('.box-paket-configure').each(function() {
+        $( ".box-paket-configure p:nth-last-child(2)" ).hide();
+    });
+    $(".learn-more").click(function(e){
+        e.preventDefault();
+        $(this).prev(".box-paket-configure p:nth-last-child(2)").slideToggle('slow');
+    });
+    /* End details */ 
+
+    
+
+}); 

@@ -1,0 +1,59 @@
+body
+{
+    background-color: ;
+}
+.container, .carousel-inner
+{
+    position: relative;
+    top: 100px;
+
+}
+.nav-item{
+	box-sizing: border-box;
+	border-bottom: 
+}
+
+.swiper-container {
+	  position: relative;
+	  top: 0px;
+      width: 1300px;
+      height: 400px;
+      background-size: cover;
+    }
+    .swiper-slide {
+      text-align: center;
+      font-size: 98px;
+      background: #fff;
+      /* Center slide text vertically */
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
+      -webkit-justify-content: center;
+      justify-content: center;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      -webkit-align-items: center;
+      align-items: center;
+    }
+    .navbar-brand
+    {
+    	font-family: 'Convergence', sans-serif;
+    }
+    .nav-link
+    {
+    	text-align: justify;
+    }
+    .form-inline
+    {
+      position: relative; left: 200px;
+      box-sizing: border-box;
+      border-radius: 10px 0 0 10px;
+    }
+    .swiper-container{
+      height: 700px;
+      width: 1300px;
+    }
+    

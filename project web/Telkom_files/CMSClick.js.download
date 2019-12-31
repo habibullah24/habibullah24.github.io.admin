@@ -1,0 +1,21 @@
+
+
+var textCMSClick = {};
+
+// The object that the JSON string should represent, can use this as it is if you want.
+textCMSClick.category = [
+	{
+		CMSEvtCond: '$(target).hasClass(\'rn_Link\')',
+		CMSEvt: 'SUPPORT',
+		CMSArg: ''
+	}
+,
+	{
+		CMSEvtCond: '$(target).parent().attr(\'Id\')==\'chatLinkInfo\'',
+		CMSEvt: 'CHAT',
+		CMSArg: ''
+	}
+];
+	
+// JSON string of the above object, just as an example
+textCMSClick.categoryJSON = JSON.stringify(textCMSClick.category);

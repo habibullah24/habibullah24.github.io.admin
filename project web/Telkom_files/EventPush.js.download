@@ -1,0 +1,268 @@
+window.geoCode = new String("null");
+window.url = "/CEMCSListener/CSListenerServiceService";
+window.geoCodeConstant = 'n/a:n/a';
+window.geoCodeCacheName = 'GeoCode';
+window.cookieDomain = 'telkom.co.id';
+window.cookiePath = '/';
+setCookie = function(name, value, domain, path, expires, secure) {
+	var cookie = name + "=" + escape(value);
+	if (expires) {
+		expires = setExpiration(expires);
+		cookie += "; expires=" + expires;
+	}
+	if (domain)
+		cookie += "; domain=" + domain;
+	if (path)
+		cookie += "; path=" + path;
+	if (secure)
+		cookie += "; secure";
+
+	document.cookie = cookie;
+}
+
+getCookie = function(name) {
+	var cName = "";
+	var pCOOKIES = new Array();
+	var pCOOKIES = document.cookie.split('; ');
+	for (bb = 0; bb < pCOOKIES.length; bb++) {
+		var NmeVal = new Array();
+		var NmeVal = pCOOKIES[bb].split('=');
+		if (NmeVal[0] == name) {
+			var cName = unescape(NmeVal[1]);
+		}
+	}
+	return cName;
+}
+setExpiration = function(cookieLife) {
+	var today = new Date();
+	var expr = new Date(today.getTime() + cookieLife * 24 * 60 * 60 * 1000);
+	return expr.toGMTString();
+}
+
+sendEventBack = function(clickEvent) {
+	var json = JSON.stringify(clickEvent);
+	var soapreq = '<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:com=\"http://com.telkom.cem.clickstream/\"><soapenv:Header/><soapenv:Body><com:sendCSEventJSON><CSEventJSON>'
+			+ json
+			+ '</CSEventJSON></com:sendCSEventJSON></soapenv:Body></soapenv:Envelope>';
+	var http = new XMLHttpRequest();
+	http.open("POST", url, true);
+	http.setRequestHeader("Content-type", "text/xml");
+        console.log("================ ClickSteam final Send ===============");      
+	console.log("final Send=" + json);
+
+
+	http.send(soapreq);
+};
+cacheGeo = function(position) {
+	window.geoCode = position.coords.latitude + ':' + position.coords.longitude;
+	setCookie(window.geoCodeCacheName, window.geoCode, window.cookieDomain,
+			window.cookiePath);
+};
+errorGeo = function() {
+	window.geoCode = window.geoCodeConstant;
+	setCookie(window.geoCodeCacheName, window.geoCode, window.cookieDomain,
+			window.cookiePath);
+};
+queryGeo = function(clickEvent) {
+	if (window.geoCode.valueOf() === window.geoCodeConstant) {
+		// using old
+	} else if (navigator.geolocation && window.geoCode.valueOf() === "null") {
+		navigator.geolocation.getCurrentPosition(cacheGeo, errorGeo);
+	} else {
+		// do nothing
+	}
+};
+
+queryCacheGeo = function(clickEvent) {
+	if (getCookie(window.geoCodeCacheName)) {
+		window.geoCode = getCookie(window.geoCodeCacheName);
+	} else {
+		queryGeo(clickEvent);
+	}
+	// should we have to send this.
+	// is better to have this read in Servlet rather than here.
+	// clickEvent.GeoCode = window.geoCode.valueOf();
+};
+function ClickEvent(categoryHash, generalAttribute) {
+	this.EventType = categoryHash;
+	this.GeneralAttribute = generalAttribute;
+}
+ClickEvent.prototype.sendEvent = function() {
+	queryCacheGeo(this);
+	sendEventBack(this);
+};
+
+function setNavCookie(sPage) {
+	var sNavPath = getCookie("CMSNavPath");
+	if (sNavPath != "" && (sNavPath != undefined)) {
+		var arrNavPages = sNavPath.split("!");
+		if (arrNavPages.length < 3) {
+			sNavPath += "!" + sPage;
+		} else {
+			sNavPath = "";
+			for ( var i = 1; i < arrNavPages.length; i++)
+				sNavPath += arrNavPages[i] + "!";
+			sNavPath += sPage
+		}
+	} else {
+		sNavPath = sPage;
+	}
+	// setCookie("CMSNavPath",sNavPath);
+	document.cookie = "CMSNavPath" + "=" + sNavPath
+			+ ";domain= telkom.co.id;path=/";
+
+
+        console.log("================ ClickSteam SiteNavigation ===============");      
+        console.log("Page	 :  " + sPage);  
+        console.log("SiteNavigation	 :  " + sNavPath);  
+
+}
+
+
+var objCMSClick  = "";
+
+/*$.getJSON('CMSClick.json', function (data) {
+objCMSClick  = JSON.parse(data);    
+  });
+*/
+ objCMSClick = JSON.parse(textCMSClick.categoryJSON);
+
+
+var objCMSLoad = "";
+/*$.getJSON('CMSLoad.json', function (data) {
+objCMSLoad  = JSON.parse(data);    
+  });
+*/
+objCMSLoad = JSON.parse(textCMSLoad.categoryJSON);
+
+
+
+
+
+
+function handleCMSClick(e) {
+	e = e || window.event;
+	var target = e.target || e.srcElement;
+	var sCMSEvt = "";
+	if ($(target).attr("CMSEvt") != undefined)
+		sCMSEvt = $(target).attr("CMSEvt");
+	var sCMSArg = "";
+	if ($(target).attr("CMSArg") != undefined)
+		try{ sCMSArg = eval($(target).attr("CMSArg")) }catch(e){ sCMSArg = $(target).attr("CMSArg") };
+	if (sCMSEvt != "" && (sCMSEvt != undefined)) {
+		// SENDEVT(sCMSEvt, sCMSArg)
+        			console.log("================ ClickSteam Click ===============");      
+        			console.log("Target	: " + $(target).html() );  
+        			console.log("CMSEvt	: " + sCMSEvt);  
+        			console.log("sCMSArg	: " + sCMSArg);  
+
+		var eve = new ClickEvent(sCMSEvt, sCMSArg);
+		eve.sendEvent();
+	}else
+	{
+	
+		for(var i=0;i<objCMSClick.length;++i)
+		{
+			if (eval(objCMSClick[i].CMSEvtCond))
+			{
+					sCMSArg=objCMSClick[i].CMSArg;
+					if (sCMSArg != undefined )sCMSArg ="";
+					if (sCMSArg != "") try{  sCMSArg = eval(sCMSArg) }catch(e){sCMSArg = sCMSArg};		
+        			console.log("================ ClickSteam Click ==============="); 
+        			console.log("Target	: " + $(target).html() );       
+        			console.log("CMSEvtCond	:  " + objCMSClick[i].CMSEvtCond );  
+        			console.log("CMSEvt	: " + objCMSClick[i].CMSEvt);  
+        			console.log("sCMSArg	: " + sCMSArg);  
+
+					var eve = new ClickEvent(objCMSClick[i].CMSEvt, sCMSArg);
+					eve.sendEvent();
+			}
+		}
+	
+	}
+}
+
+
+
+function handleCMSLoad (e) {
+    e = e || window.event;
+    var target = e.target || e.srcElement;
+    var obody = $("body");
+    var sPage = obody.attr("CMSPage");
+        if(sPage == undefined && $("meta[Property='og:title']") !=undefined)sPage= $("meta[Property='og:title']").attr("content");
+        else sPage =eval(sPage );
+
+    var sCMSEvt = obody.attr("CMSEvt");
+	if (sCMSEvt != "" && (sCMSEvt != undefined)) try{  sCMSEvt =eval(sCMSEvt) }catch(e){};
+    var sCMSArg = obody.attr('CMSArg');
+    if (sCMSArg == undefined) sCMSArg = "";
+    if (sCMSArg != "" && (sCMSArg != undefined)) try{  sCMSArg = eval(sCMSArg)}catch(e){};
+                               
+                    
+    if (sPage != "" && (sPage != undefined)) {
+                    setNavCookie(sPage)
+    }
+    if (sCMSEvt != "" && (sCMSEvt != undefined)) {
+                    // SENDEVT(sCMSEvt, sCMSArg)
+        console.log("================ ClickSteam Onload ===============");      
+        console.log("Page	 :  " + sPage);  
+        console.log("CMSEvt	: " + sCMSEvt);  
+        console.log("sCMSArg	: " + sCMSArg);  
+
+                    var eve = new ClickEvent(sCMSEvt, sCMSArg);
+                    eve.sendEvent();
+    }else
+	{
+		for(var i=0;i<objCMSLoad.length;++i)
+		{
+			if (eval(objCMSLoad[i].CMSEvtCond))
+			{
+
+					sCMSArg=objCMSLoad[i].CMSArg;
+					if (sCMSArg != undefined )sCMSArg ="";
+					if (sCMSArg != "") try{sCMSArg = eval(sCMSArg)}catch(e){};	
+        			console.log("================ ClickSteam Onload ===============");      
+        			console.log("CMSEvtCond	:  " + objCMSLoad[i].CMSEvtCond );  
+        			console.log("Page	:  " + sPage);  
+        			console.log("CMSEvt	: " + objCMSLoad[i].CMSEvt);  
+        			console.log("sCMSArg	: " + sCMSArg);  
+		
+					var eve = new ClickEvent(objCMSLoad[i].CMSEvt, sCMSArg);
+					eve.sendEvent();
+			}
+		}
+	}
+}
+
+
+function handleNewTabClickEvent (e) {
+    e = e || window.event;
+    var target ;
+    try{
+        target = (e.target.closest("a")!=null?e.target.closest("a").getAttribute('href'):null)||e.target || e.srcElement;
+    }catch(err){
+        target = e.target.parentNode.getAttribute("href")||e.target || e.srcElement;
+        //alert(err.message);
+    }
+    //alert(target);
+    //cek kalo mengandung servlet
+    if(target.toString().indexOf("servlet") < 1 && target.toString().indexOf("http") > -1 ){
+        window.open(target,'_blank');
+        e.preventDefault();
+       //alert("tdk ada servlet dan mengandung http");
+    }
+}
+
+
+
+if (window.addEventListener) {
+    window.addEventListener("load", handleCMSLoad, false);
+    window.addEventListener("click", handleCMSClick , true);
+    window.addEventListener("click", handleNewTabClickEvent , true);
+
+} else {
+    window.attachEvent("onload", handleCMSLoad);
+    window.attachEvent("onclick", handleCMSClick);
+    window.attachEvent("onclick", handleNewTabClickEvent);
+
+}

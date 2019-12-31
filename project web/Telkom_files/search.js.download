@@ -1,0 +1,113 @@
+
+$(document).ready(function() {
+    
+	document.domain = $('#storeDomain').val();
+	var storeHostUrl = "";// $("#storeHostUrl").val(); // need <var> hidden element in header div like <div class="hide" id="storeHostUrl">${storeHostUrl}</div>
+    var typeAheadPageUrl = $("#typeAheadPageUrl").val();// need <var> hidden element in header div like <var class="hide" id="typeAheadPageUrl">${typeAheadPageUrl}</var>
+    var searchPageUrl = $("#searchPageUrl").val();// need <var> hidden element in header div like <var class="hide" id="searchPageUrl">${searchPageUrl}</var>
+    
+    function callback(item) {
+		window.location.href=item.url;
+	}
+
+    $('input#header-search-input').jsonSuggest({url: storeHostUrl + typeAheadPageUrl + '?Ntt=',minCharacters:3, maxResults: 20, onSelect:callback});
+    $('input#search-input-big').jsonSuggest({url: storeHostUrl + typeAheadPageUrl + '?Ntt=',minCharacters:3, maxResults: 20, onSelect:callback});
+    
+    function myHTMLEnCode(str) // encode special character
+    {
+        var s = "";
+        if (str.length == 0) return "";
+        s = str.replace(/&/g, "&amp;");
+        s = s.replace(/</g, "&lt;");
+        s = s.replace(/>/g, "&gt;");
+        //s = s.replace(/ /g,"&nbsp;");
+        s = s.replace(/\'/g, "&#39;");
+        s = s.replace(/\"/g, "&quot;");
+        //s = s.replace(/\n/g, "<br>");
+        return s;  
+    }
+    
+	//click search button event
+	$("form div[class='form-group box-search'] button").click(function() {
+		var ntt = $('input#header-search-input').val();
+		var eve = new ClickEvent("SEARCH",ntt);
+		eve.sendEvent();
+		ntt = myHTMLEnCode(ntt);
+		ntt= encodeURIComponent(ntt);
+		var url = storeHostUrl + searchPageUrl + "?Ntt=" + ntt;
+//		if(!filter){
+//			var dftSegment = $("input#dftSegment").val();
+//			assembleFilter(dftSegment);
+//		}
+//		url += "&" + filter;
+		window.location.href = url;
+		return false;
+	});
+	//click search button event
+	$("form button[class='btn hidden-xs']").click(function() {
+		var ntt = $('input#search-input-big').val();
+		var eve = new ClickEvent("SEARCH",ntt);
+		eve.sendEvent();
+		ntt = myHTMLEnCode(ntt);
+		ntt= encodeURIComponent(ntt);
+		var url = storeHostUrl + searchPageUrl + "?Ntt=" + ntt;
+//		if(!filter){
+//			var dftSegment = $("input#dftSegment").val();
+//			assembleFilter(dftSegment);
+//		}
+//		url += "&" + filter;
+		window.location.href = url;
+		return false;
+	});
+	//bind enter keydown event
+	$('input#header-search-input').keydown(function(event) {
+		if (event.keyCode == 13) {
+			var ntt = $('input#header-search-input').val();
+		var eve = new ClickEvent("SEARCH",ntt);
+		eve.sendEvent();
+
+			ntt = myHTMLEnCode(ntt);
+			ntt= encodeURIComponent(ntt);
+			var url = searchPageUrl + "?Ntt=" + ntt;
+			window.location.href = url;
+			return false;
+		}
+	});
+
+	//bind enter keydown event
+	$('input#search-input-big').keydown(function(event) {
+		if (event.keyCode == 13) {
+			var ntt = $('input#search-input-big').val();
+		var eve = new ClickEvent("SEARCH",ntt);
+		eve.sendEvent();
+			ntt = myHTMLEnCode(ntt);
+			ntt= encodeURIComponent(ntt);
+			var url = searchPageUrl + "?Ntt=" + ntt;
+			window.location.href = url;
+			return false;
+		}
+	});
+	
+	// assemble endeca record filter Nr param
+	function assembleFilter(value){
+		if(value){
+			var segments;
+			segments = value.split(",");
+			filter = "Nr=OR(";
+			for (i = 0; i < segments.length; i++ ){
+				filter += "segments:" + segments[i] + ",";
+			}
+			filter = filter.substring(0, filter.length - 1) + ")";
+		}
+	}
+	
+	function selectSegment(){
+		var value = $(this).children("input").val();
+		assembleFilter(value);
+	}
+	
+	//bind click event to assemble record filter.
+	$('a#consumer').click(selectSegment);
+	$('a#business').click(selectSegment);
+	$('a#abtTelkom').click(selectSegment);
+});
